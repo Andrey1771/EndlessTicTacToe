@@ -1,16 +1,13 @@
 import { OuterBinarySearchTree } from "./binary-tree/outer-tree-node";
 
 export class BinaryTreeOfGame extends OuterBinarySearchTree<number,number> {
-    _C: number;
-
-    constructor(C: number) {
-        super();
-        this._C = C;
+    constructor(victoryRowLength: number) {
+        super(victoryRowLength);
     }
 
-    public override insert(key: number, value: number): void {
+    public override insert(key: number, value: number): boolean {
         super.insert(key, value);
-        this.checkWin(key, value);
+        return this.checkWin(key, value);
     }
 
     private checkWin(key: number, value: number): boolean {
@@ -18,7 +15,6 @@ export class BinaryTreeOfGame extends OuterBinarySearchTree<number,number> {
     }
 
     private checkHorizontal(key: number, value: number): boolean {
-
         const range = this.search(key)?.tree.rangeSearch(value);
         if (!range) throw new Error("Не найден ключ при checkHorizontal");
 
@@ -37,7 +33,7 @@ export class BinaryTreeOfGame extends OuterBinarySearchTree<number,number> {
             // Проверяем, что текущий элемент меньше следующего на 1
             if (value + 1 === arr[index + 1]) {
                 count++;
-                if (count >= this._C) {
+                if (count >= (this._victoryRowLength ?? 0)) {// Todo можно упростить
                     return true;
                 }
             }
@@ -50,16 +46,16 @@ export class BinaryTreeOfGame extends OuterBinarySearchTree<number,number> {
 
     private checkVertical(key: number, value: number): boolean {
         const keysOfRange = this.rangeSearch(key);
-        let count = 1;
+        let count = 0;
         return keysOfRange?.some(key => {
             if (!!this.search(key)?.tree.search(value)?.value) {
                 count++;
-                if (count >= this._C) {
+                if (count >= (this._victoryRowLength ?? 0)) {
                     return true;
                 }
             }
             else {
-                count = 1;
+                count = 0;
             }
             return false;
         });
@@ -74,14 +70,14 @@ export class BinaryTreeOfGame extends OuterBinarySearchTree<number,number> {
             return el;
         });
 
-        const n = matrix.length;
-
+        const n = matrix.length; // TODO Тут логика проверки на диагоналей не учитывает верное расположение элемента + условие главной сломано
+        const keyIndex = keysOfRange.indexOf(key);
         // Проверка главной диагонали
         let mainDiagonalCount = 0;
         for (let i = 0; i < n; i++) {
-            if (checkedMatrix[i][i] === value) {
+            if (checkedMatrix[i].some(mValue => mValue === value  - (i - keyIndex - 1))) {
                 mainDiagonalCount++;
-                if (mainDiagonalCount >= this._C) {
+                if (mainDiagonalCount >= (this._victoryRowLength ?? 0)) {
                     return true;
                 }
             } else {
@@ -92,16 +88,15 @@ export class BinaryTreeOfGame extends OuterBinarySearchTree<number,number> {
         // Проверка побочной диагонали
         let antiDiagonalCount = 0;
         for (let i = 0; i < n; i++) {
-            if (checkedMatrix[i][n - i - 1] === value) {
+            if (checkedMatrix[i].some(mValue => mValue === value  - (i - keyIndex))) {
                 antiDiagonalCount++;
-                if (antiDiagonalCount >= this._C) {
+                if (antiDiagonalCount >= (this._victoryRowLength ?? 0)) {
                     return true;
                 }
             } else {
                 antiDiagonalCount = 0;
             }
         }
-
         return false;
     }
 }

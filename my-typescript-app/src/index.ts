@@ -1,53 +1,137 @@
-import { BinaryTreeOfGame } from './binary-tree-of-game';
 import './styles.scss';
+import { Game } from "./game";
 
-const gameContainer = document.getElementById('game-container')!;
-const gameBoard = document.getElementById('game-board')!;
+// init
+const cellSize = 40;
+const loadDistance = 10; // Количество клеток для предзагрузки
+const gameBoard = document.getElementById('game-board') as HTMLElement;
+const gameContainer = document.getElementById('game-container') as HTMLElement;
+const currentPlayer = { value: 'x' };
 
-const CELL_SIZE = 30;
-const board: Map<string, string> = new Map();
+// Игра и старт, хардкод
+const game = new Game(3);
+game.start();
+// Храним отображаемые ячейки
+const visibleCells: Map<string, string> = new Map();
 
-gameBoard.addEventListener('click', (event: MouseEvent) => {
-  const rect = gameBoard.getBoundingClientRect();
-  const x = Math.floor((event.clientX - rect.left) / CELL_SIZE);
-  const y = Math.floor((event.clientY - rect.top) / CELL_SIZE);
-  const key = `${x},${y}`;
-
-  if (!board.has(key)) {
+function createCell(row: number, col: number): void {
+  const crossValue = game.crossBinaryTree?.search(row)?.tree.search(col);
+  const zeroValue = game.zeroBinaryTree?.search(row)?.tree.search(col);
+  if (!(crossValue || zeroValue)) {
     const cell = document.createElement('div');
-    cell.className = 'cell';
-    cell.style.gridColumnStart = (x + 1).toString();
-    cell.style.gridRowStart = (y + 1).toString();
-    cell.textContent = board.size % 2 === 0 ? 'X' : 'O';
+    cell.classList.add('cell');
+    cell.dataset.row = row.toString();
+    cell.dataset.col = col.toString();
     gameBoard.appendChild(cell);
-    board.set(key, cell.textContent);
   }
+
+  // Восстановление состояния ячейки
+  if (crossValue || zeroValue) {
+    const cell = document.createElement('div');
+    cell.classList.add('cell');
+    cell.dataset.row = row.toString();
+    cell.dataset.col = col.toString();
+    cell.classList.add(crossValue ? 'x' : 'o');
+    gameBoard.appendChild(cell);
+  }
+}
+
+function updateBoard(): void {
+  const containerScrollTop = gameContainer.scrollTop;
+  const containerScrollLeft = gameContainer.scrollLeft;
+  const containerHeight = gameContainer.clientHeight;
+  const containerWidth = gameContainer.clientWidth;
+
+  const minVisibleRow = Math.floor(containerScrollTop / cellSize) - loadDistance;
+  const maxVisibleRow = Math.ceil((containerScrollTop + containerHeight) / cellSize) + loadDistance;
+  const minVisibleCol = Math.floor(containerScrollLeft / cellSize) - loadDistance;
+  const maxVisibleCol = Math.ceil((containerScrollLeft + containerWidth) / cellSize) + loadDistance;
+
+  // Обновляем отображаемые ячейки
+  for (let row = minVisibleRow; row <= maxVisibleRow; row++) {
+    for (let col = minVisibleCol; col <= maxVisibleCol; col++) {
+      const cellKey = `${row},${col}`;
+      if (!visibleCells.has(cellKey)) {
+        // Если ячейка новая, добавляем её
+        createCell(row, col);
+        visibleCells.set(cellKey, currentPlayer.value);
+      }
+    }
+  }
+
+  // Удаляем не видимые ячейки
+  visibleCells.forEach((value, cellKey) => {
+    const [rowStr, colStr] = cellKey.split(',');
+    const row = parseInt(rowStr, 10);
+    const col = parseInt(colStr, 10);
+
+    if (row < minVisibleRow || row > maxVisibleRow || col < minVisibleCol || col > maxVisibleCol) {
+      visibleCells.delete(cellKey);
+    }
+  });
+
+  // Обновляем стили сетки
+  gameBoard.style.gridTemplateColumns = `repeat(${maxVisibleCol - minVisibleCol + 1}, ${cellSize}px)`;
+  gameBoard.style.gridTemplateRows = `repeat(${maxVisibleRow - minVisibleRow + 1}, ${cellSize}px)`;
+}
+
+function onScroll(): void {
+  updateBoard();
+}
+
+function resizeHandler(): void {
+  updateBoard(); // Перерасчитываем и добавляем ячейки при изменении размера окна
+}
+
+function handleClick(event: MouseEvent): void {
+  const target = event.target as HTMLElement;
+  if (target.classList.contains('cell')) {
+    const row = parseInt(target.dataset.row!, 10);
+    const col = parseInt(target.dataset.col!, 10);
+
+    const crossValue = game.crossBinaryTree?.search(row)?.tree.search(col);
+    const cellData = crossValue != undefined ? crossValue : game.zeroBinaryTree?.search(row)?.tree.search(col)?.value;
+    if (cellData == undefined) {
+      const currentValue = currentPlayer.value;
+
+      if (currentPlayer.value === 'x') {
+        if (game.addCrossTo(row, col)) {
+            alert(`${currentValue.toUpperCase()} wins!`);
+        }
+      } else {
+        if (game.addZeroTo(row, col)) {
+          alert(`${currentValue.toUpperCase()} wins!`);
+        }
+      }
+
+      target.textContent = currentValue;
+      target.classList.remove('x', 'o');
+      target.classList.add(currentValue.toLowerCase());
+      currentPlayer.value = currentPlayer.value === 'x' ? 'o' : 'x';
+    }
+  }
+}
+
+//События
+gameContainer.addEventListener('scroll', onScroll);
+window.addEventListener('resize', resizeHandler);
+updateBoard();
+gameBoard.addEventListener('click', handleClick);
+
+document.getElementById('save-button')?.addEventListener('click', () => {
+  game.saveToFile('gameSaveFile.json');
 });
 
-// Center the view on the initial load
-const centerView = () => {
-  gameContainer.scrollLeft = (gameBoard.clientWidth - gameContainer.clientWidth) / 2;
-  gameContainer.scrollTop = (gameBoard.clientHeight - gameContainer.clientHeight) / 2;
-};
+document.getElementById('load-button')?.addEventListener('click', () => {
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  fileInput.click();
+});
 
-window.addEventListener('load', centerView);
-window.addEventListener('resize', centerView);
-
-
-// Пример использования
-const outerBST = new BinaryTreeOfGame<number, number>(3);
-
-const innerBST = new BinaryTreeOfGame<number, number>(3);
-
-// Вставка данных
-outerBST.insert(10, 1);
-outerBST.insert(20, 2);
-outerBST.insert(10, 3);
-outerBST.insert(20, 4);
-outerBST.insert(15, 5);
-
-// Обход и вывод данных
-outerBST.inOrderTraverse((key, tree) => {
-  console.log(`Key: ${key}`);
-  tree.inOrderTraverse(value => console.log(`  Value: ${value}`));
+document.getElementById('file-input')?.addEventListener('click', (event) => {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files[0]) {
+    game.loadFromFile(input.files[0])
+        .then(() => console.log("Данные загружены"))
+        .catch(err => console.error("Ошибка загрузки данных:", err));
+  }
 });

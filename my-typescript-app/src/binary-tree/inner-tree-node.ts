@@ -9,11 +9,11 @@ export class InnerTreeNode<T> {
 }
 
 export class InnerBinarySearchTree<T> {
-    protected _C: T | undefined;
-    root: InnerTreeNode<T> | null = null;
+    protected _victoryRowLength: T | undefined;
+    public root: InnerTreeNode<T> | null = null;
 
-    constructor(C: T) {
-        this._C = C;
+    constructor(victoryRowLength: T | undefined = undefined) {
+        this._victoryRowLength = victoryRowLength;
     }
 
     public insert(value: T): void {
@@ -41,19 +41,7 @@ export class InnerBinarySearchTree<T> {
         }
     }
 
-    public inOrderTraverse(callback: (value: T) => void): void {
-        this.inOrderTraverseNode(this.root, callback);
-    }
-
-    private inOrderTraverseNode(node: InnerTreeNode<T> | null, callback: (value: T) => void): void {
-        if (node !== null) {
-            this.inOrderTraverseNode(node.left, callback);
-            callback(node.value);
-            this.inOrderTraverseNode(node.right, callback);
-        }
-    }
-
-    // Метод для поиска значений в диапазоне
+    // Поиск значений в диапазоне
     rangeSearch(value: T): T[] {
         const result: T[] = [];
         this.rangeSearchNode(this.root, value, result);
@@ -65,8 +53,8 @@ export class InnerBinarySearchTree<T> {
             return;
         }
 
-        const lowerBound = (value as unknown as number) - (this._C as unknown as number);
-        const upperBound = (value as unknown as number) + (this._C as unknown as number);
+        const lowerBound = (value as unknown as number) - (this._victoryRowLength as unknown as number);
+        const upperBound = (value as unknown as number) + (this._victoryRowLength as unknown as number);
 
         if ((node.value as unknown as number) >= lowerBound && (node.value as unknown as number) <= upperBound) {
             result.push(node.value);
@@ -81,7 +69,6 @@ export class InnerBinarySearchTree<T> {
         }
     }
 
-    // Метод для поиска значения по ключу
     public search(value: T): InnerTreeNode<T> | null {
         return this.searchNode(this.root, value);
     }
@@ -98,5 +85,36 @@ export class InnerBinarySearchTree<T> {
         } else {
             return node;
         }
+    }
+
+
+    // TODO Разделить логику
+    public toJSON(): any {
+        return this.serializeNode(this.root);
+    }
+
+    private serializeNode(node: InnerTreeNode<T> | null): any {
+        if (node === null) {
+            return null;
+        }
+        return {
+            value: node.value,
+            left: this.serializeNode(node.left),
+            right: this.serializeNode(node.right),
+        };
+    }
+
+    public fromJSON(data: any): void {
+        this.root = this.deserializeNode(data);
+    }
+
+    private deserializeNode(data: any): InnerTreeNode<T> | null {
+        if (data === null) {
+            return null;
+        }
+        const node = new InnerTreeNode(data.value);
+        node.left = this.deserializeNode(data.left);
+        node.right = this.deserializeNode(data.right);
+        return node;
     }
 }

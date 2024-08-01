@@ -13,12 +13,16 @@ export class OuterTreeNode<K, V> {
 }
 
 export class OuterBinarySearchTree<K, V> {
-    protected _C: K | undefined;
+    protected _victoryRowLength: K | undefined;
     protected root: OuterTreeNode<K, V> | null = null;
 
-    // log(K) * log(V)
+    constructor(victoryRowLength: K | undefined = undefined) {
+        this._victoryRowLength = victoryRowLength;
+    }
+
+    // O(log(K) * log(V))
     public insert(key: K, value: V): void {
-        const newTree = new InnerBinarySearchTree<V>(this._C as V);
+        const newTree = new InnerBinarySearchTree<V>(this._victoryRowLength as V);
         newTree.insert(value);
         const newNode = new OuterTreeNode(key, newTree);
         if (this.root === null) {
@@ -47,10 +51,6 @@ export class OuterBinarySearchTree<K, V> {
         }
     }
 
-    public inOrderTraverse(callback: (key: K, tree: InnerBinarySearchTree<V>) => void): void {
-        this.inOrderTraverseNode(this.root, callback);
-    }
-
     private inOrderTraverseNode(node: OuterTreeNode<K, V> | null, callback: (key: K, tree: InnerBinarySearchTree<V>) => void): void {
         if (node !== null) {
             this.inOrderTraverseNode(node.left, callback);
@@ -71,8 +71,8 @@ export class OuterBinarySearchTree<K, V> {
             return;
         }
 
-        const lowerBound = (key as unknown as number) - (this._C as unknown as number);
-        const upperBound = (key as unknown as number) + (this._C as unknown as number);
+        const lowerBound = (key as unknown as number) - (this._victoryRowLength as unknown as number);
+        const upperBound = (key as unknown as number) + (this._victoryRowLength as unknown as number);
 
         if ((node.key as unknown as number) >= lowerBound && (node.key as unknown as number) <= upperBound) {
             result.push(node.key);
@@ -87,7 +87,6 @@ export class OuterBinarySearchTree<K, V> {
         }
     }
 
-    // Метод для поиска узла по ключу
     public search(key: K): OuterTreeNode<K, V> | null {
         return this.searchNode(this.root, key);
     }
@@ -104,5 +103,39 @@ export class OuterBinarySearchTree<K, V> {
         } else {
             return node;
         }
+    }
+
+
+    // TODO Разделить логику
+    public toJSON(): any {
+        return this.serializeNode(this.root);
+    }
+
+    private serializeNode(node: OuterTreeNode<K, V> | null): any {
+        if (node === null) {
+            return null;
+        }
+        return {
+            key: node.key,
+            tree: node.tree.toJSON(),
+            left: this.serializeNode(node.left),
+            right: this.serializeNode(node.right),
+        };
+    }
+
+    public fromJSON(data: any): void {
+        this.root = this.deserializeNode(data);
+    }
+
+    private deserializeNode(data: any): OuterTreeNode<K, V> | null {
+        if (data === null) {
+            return null;
+        }
+        const tree = new InnerBinarySearchTree<V>();
+        tree.fromJSON(data.tree);
+        const node = new OuterTreeNode(data.key, tree);
+        node.left = this.deserializeNode(data.left);
+        node.right = this.deserializeNode(data.right);
+        return node;
     }
 }
