@@ -1,0 +1,183 @@
+$primary-color: #ffffff;
+$secondary-color: #0e88cb;//#b3def1
+$logo-color: linear-gradient(to left, #0e88cb, #b3def1);
+$background-color: #f8f9fa;
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: $background-color;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: $primary-color;
+    color: $secondary-color;
+
+    .logo {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            background: $logo-color; //TODO
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            margin-left: 10px;
+        }
+
+        .logo-cell {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: red;
+
+            $light-gray: #d3d3d3;
+            div {
+                &:nth-child(2n) {
+                    color: #4f4f4f;
+                    font-size: 32px;
+                }
+                &:nth-child(3n) {
+                    color: blue;
+                }
+            }
+        }
+    }
+
+    .nav ul {
+        list-style: none;
+        display: flex;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin-left: 20px;
+
+            a {
+                text-decoration: none;
+                color: $secondary-color;
+                font-weight: bold;
+
+                &:hover {
+                    color: lighten($secondary-color, 20%);
+                }
+            }
+        }
+    }
+
+    .toggle-button {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 21px;
+        cursor: pointer;
+
+        .bar {
+            height: 3px;
+            width: 100%;
+            background-color: $secondary-color;
+            border-radius: 10px;
+        }
+    }
+}
+
+//TODO
+/*@media (max-width: 768px) {
+    .nav ul {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: $primary-color;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        text-align: center;
+
+        li {
+            margin: 10px 0;
+        }
+    }
+
+    .toggle-button {
+        display: flex;
+    }
+
+    .nav.open ul {
+        display: flex;
+    }
+}*/
+
+.game-container {
+    display: flex;
+    flex-direction: row;
+
+    #game-table {
+        position: relative;
+        width: 800px; // ширина контейнера
+        height: 800px; // высота контейнера
+        overflow: auto;
+        border: 1px solid #000;
+        margin: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+
+        #game-board {
+            display: grid;
+            position: absolute;
+            top: 0;
+            left: 0;
+            will-change: grid-template-rows, grid-template-columns;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            text-align: center;
+            line-height: 40px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .x {
+            color: red;
+        }
+
+        .o {
+            color: blue;
+        }
+    }
+}
+
+#main-container {
+    display: flex;
+    flex-direction: column;
+    justify-items: flex-start;
+    background: #b3dcf0;
+    height: 100vh;
+}
+
+.footer {
+    flex: 1;
+    background: #ffffff;
+}

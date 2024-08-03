@@ -51,14 +51,6 @@ export class OuterBinarySearchTree<K, V> {
         }
     }
 
-    private inOrderTraverseNode(node: OuterTreeNode<K, V> | null, callback: (key: K, tree: InnerBinarySearchTree<V>) => void): void {
-        if (node !== null) {
-            this.inOrderTraverseNode(node.left, callback);
-            callback(node.key, node.tree);
-            this.inOrderTraverseNode(node.right, callback);
-        }
-    }
-
     // Метод для поиска ключей в диапазоне
     public rangeSearch(key: K): K[] {
         const result: K[] = [];

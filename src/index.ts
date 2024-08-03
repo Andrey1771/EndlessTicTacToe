@@ -5,7 +5,7 @@ import { Game } from "./game";
 const cellSize = 40;
 const loadDistance = 10; // Количество клеток для предзагрузки
 const gameBoard = document.getElementById('game-board') as HTMLElement;
-const gameContainer = document.getElementById('game-container') as HTMLElement;
+const gameTable = document.getElementById('game-table') as HTMLElement;
 const currentPlayer = { value: 'x' };
 
 // Игра и старт, хардкод
@@ -37,10 +37,10 @@ function createCell(row: number, col: number): void {
 }
 
 function updateBoard(): void {
-  const containerScrollTop = gameContainer.scrollTop;
-  const containerScrollLeft = gameContainer.scrollLeft;
-  const containerHeight = gameContainer.clientHeight;
-  const containerWidth = gameContainer.clientWidth;
+  const containerScrollTop = gameTable.scrollTop;
+  const containerScrollLeft = gameTable.scrollLeft;
+  const containerHeight = gameTable.clientHeight;
+  const containerWidth = gameTable.clientWidth;
 
   const minVisibleRow = Math.floor(containerScrollTop / cellSize) - loadDistance;
   const maxVisibleRow = Math.ceil((containerScrollTop + containerHeight) / cellSize) + loadDistance;
@@ -112,8 +112,8 @@ function handleClick(event: MouseEvent): void {
   }
 }
 
-//События
-gameContainer.addEventListener('scroll', onScroll);
+// События
+gameTable.addEventListener('scroll', onScroll);
 window.addEventListener('resize', resizeHandler);
 updateBoard();
 gameBoard.addEventListener('click', handleClick);
