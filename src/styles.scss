@@ -124,8 +124,29 @@ body {
 }*/
 
 .game-container {
-    display: flex;
-    flex-direction: row;
+    /*display: flex;
+    flex-direction: row;*/
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    border: 1px solid black;
+
+    .centered-element {
+        justify-self: center;
+        align-self: center;
+        background-color: lightblue;
+        padding: 10px;
+        border: 1px solid black;
+    }
+
+    .right-centered-element {
+        justify-self: center;
+        align-self: center;
+        background-color: lightgreen;
+        padding: 10px;
+        border: 1px solid black;
+    }
 
     #game-table {
         position: relative;
@@ -168,6 +189,8 @@ body {
         }
     }
 }
+
+
 
 #main-container {
     display: flex;
