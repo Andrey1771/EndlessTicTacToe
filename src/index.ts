@@ -14,7 +14,7 @@ game.start();
 // Храним отображаемые ячейки
 const visibleCells: Map<string, string> = new Map();
 
-function createCell(row: number, col: number): void {
+function createCell(row: number, col: number, cellKey: string, visibleCells: Map<string, string>): void {
   const crossValue = game.crossBinaryTree?.search(row)?.tree.search(col);
   const zeroValue = game.zeroBinaryTree?.search(row)?.tree.search(col);
   if (!(crossValue || zeroValue)) {
@@ -22,7 +22,9 @@ function createCell(row: number, col: number): void {
     cell.classList.add('cell');
     cell.dataset.row = row.toString();
     cell.dataset.col = col.toString();
-    gameBoard.appendChild(cell);
+    cell.classList.add(cellKey);
+    gameBoard.insertAdjacentElement(cell);
+    visibleCells.set(cellKey, "");
   }
 
   // Восстановление состояния ячейки
@@ -31,9 +33,18 @@ function createCell(row: number, col: number): void {
     cell.classList.add('cell');
     cell.dataset.row = row.toString();
     cell.dataset.col = col.toString();
-    cell.classList.add(crossValue ? 'x' : 'o');
+    const value = crossValue ? 'x' : 'o';
+    cell.classList.add(value);
+    //cell.classList.add(cellKey);
+    cell.textContent = value;
     gameBoard.appendChild(cell);
+    visibleCells.set(cellKey, value);
   }
+}
+
+function insertCellInGameBoard(row: number, col: number, cellKey: string, visibleCells: Map<string, string>): void {
+  let cellBefore = null;
+  gameBoard.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
 }
 
 function updateBoard(): void {
@@ -47,18 +58,7 @@ function updateBoard(): void {
   const minVisibleCol = Math.floor(containerScrollLeft / cellSize) - loadDistance;
   const maxVisibleCol = Math.ceil((containerScrollLeft + containerWidth) / cellSize) + loadDistance;
 
-  // Обновляем отображаемые ячейки
-  for (let row = minVisibleRow; row <= maxVisibleRow; row++) {
-    for (let col = minVisibleCol; col <= maxVisibleCol; col++) {
-      const cellKey = `${row},${col}`;
-      if (!visibleCells.has(cellKey)) {
-        // Если ячейка новая, добавляем её
-        createCell(row, col);
-        visibleCells.set(cellKey, currentPlayer.value);
-      }
-    }
-  }
-
+  let test: string[] = [];
   // Удаляем не видимые ячейки
   visibleCells.forEach((value, cellKey) => {
     const [rowStr, colStr] = cellKey.split(',');
@@ -67,12 +67,39 @@ function updateBoard(): void {
 
     if (row < minVisibleRow || row > maxVisibleRow || col < minVisibleCol || col > maxVisibleCol) {
       visibleCells.delete(cellKey);
+      const cellToRemove = gameBoard.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+      if (cellToRemove) {
+        gameBoard.removeChild(cellToRemove);
+      }
+      test.push(cellKey);
     }
   });
+
+  let t = "";
+  test.forEach((value) => {
+    t = t + value.toString() + " ";
+  })
+  console.log(t);
+
+  // Обновляем отображаемые ячейки
+  for (let row = minVisibleRow; row <= maxVisibleRow; row++) {
+    for (let col = minVisibleCol; col <= maxVisibleCol; col++) {
+      const cellKey = `${row},${col}`;
+      if (!visibleCells.has(cellKey)) {
+        // Если ячейка новая, добавляем её
+        createCell(row, col, cellKey, visibleCells);
+      }
+    }
+  }
 
   // Обновляем стили сетки
   gameBoard.style.gridTemplateColumns = `repeat(${maxVisibleCol - minVisibleCol + 1}, ${cellSize}px)`;
   gameBoard.style.gridTemplateRows = `repeat(${maxVisibleRow - minVisibleRow + 1}, ${cellSize}px)`;
+
+  const horizontalSizeOfRemovedColumns = Math.abs(Math.abs(minVisibleCol) - loadDistance) * cellSize;
+  const verticalSizeOfRemovedRows = Math.abs(Math.abs(minVisibleRow) - loadDistance) * cellSize;
+  gameBoard.style.paddingLeft = `${horizontalSizeOfRemovedColumns}px`;
+  gameBoard.style.paddingTop = `${verticalSizeOfRemovedRows}px`;
 }
 
 function onScroll(): void {
