@@ -196,6 +196,7 @@ function updateBoard(): void {
             if (cellToRemove) {
                 gameBoard.removeChild(cellToRemove);
                 visibleCells.delete(cellKey);
+                deletedCells += `(${row}, ${col}); `;
             } else {
                 throw new Error("Почему-то ячейка не найдена")
             }
