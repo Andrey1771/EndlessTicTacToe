@@ -1,0 +1,57 @@
+.game-container {
+  /*display: flex;
+  flex-direction: row;*/
+
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+
+  .centered-element {
+    justify-self: center;
+    align-self: center;
+    background-color: lightblue;
+    padding: 10px;
+    border: 1px solid black;
+  }
+
+  .game-table {
+    position: relative;
+    width: 800px; // ширина контейнера
+    height: 800px; // высота контейнера
+    overflow: auto;
+    border: 1px solid #000;
+    margin: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+
+    .game-board {
+      display: grid;
+      position: absolute;
+      top: 0;
+      left: 0;
+      will-change: grid-template-rows, grid-template-columns;
+
+      .cell {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        text-align: center;
+        line-height: 40px;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .x {
+        color: red;
+      }
+
+      .o {
+        color: blue;
+      }
+    }
+  }
+}

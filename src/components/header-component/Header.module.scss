@@ -1,0 +1,73 @@
+@import "src/app/endless-tic-tac-toe/scss/colors";
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: $primary-color;
+  color: $secondary-color;
+
+  .logo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: bold;
+      background: $logo-color; //TODO
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      margin-left: 10px;
+    }
+
+    .logo-cell {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      line-height: 40px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      color: red;
+
+      $light-gray: #d3d3d3;
+      div {
+        &:nth-child(2n) {
+          color: #4f4f4f;
+          font-size: 32px;
+        }
+        &:nth-child(3n) {
+          color: blue;
+        }
+      }
+    }
+  }
+
+  .nav ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+
+    li {
+      margin-left: 20px;
+
+      a {
+        text-decoration: none;
+        color: $secondary-color;
+        font-weight: bold;
+
+        &:hover {
+          color: lighten($secondary-color, 20%);
+        }
+      }
+    }
+  }
+}

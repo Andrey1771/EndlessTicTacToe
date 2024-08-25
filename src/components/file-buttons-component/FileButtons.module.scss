@@ -1,0 +1,20 @@
+@import "src/app/endless-tic-tac-toe/scss/colors";
+.right-centered-element {
+  justify-self: center;
+  align-self: center;
+  background-color: lightgreen;
+  padding: 10px;
+  border: 1px solid black;
+}
+
+.toggle-button {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+
+  .bar {
+    width: 100%;
+    background-color: $secondary-color;
+    border-radius: 10px;
+  }
+}
