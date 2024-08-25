@@ -4,6 +4,7 @@ import {IFileService} from "../../interfaces/services/i-file-service";
 import IDENTIFIERS from "../../constants/identifiers";
 import { IGameState } from "../../interfaces/game/i-game-state";
 import {resolve} from "inversify-react";
+import { IGameDataLoader } from "../../interfaces/game/i-game-json-loader";
 
 export default class FileButtons extends Component {
     private _fileInputRef = createRef<HTMLInputElement>();
@@ -16,6 +17,7 @@ export default class FileButtons extends Component {
 
     @resolve(IDENTIFIERS.IFileService) private readonly _fileService!: IFileService;
     @resolve(IDENTIFIERS.IGameState) private readonly _gameState!: IGameState
+    @resolve(IDENTIFIERS.IGameDataLoader) private readonly _gameDataLoader!: IGameDataLoader
 
     constructor(props: any) {
         super(props);
@@ -27,7 +29,7 @@ export default class FileButtons extends Component {
             <div className={`${styles.toggleButton} ${styles.rightCenteredElement}`}>
                 <button id="save-button" className={styles.bar} onClick={this.onSaveButtonClick.bind(this)}>Сохранить</button>
                 <button id="load-button" className={styles.bar} onClick={this.onLoadButtonClick.bind(this)}>Загрузить</button>
-                <input type="file" id="file-input" ref={this._fileInputRef} className={styles.bar} style={{display: 'none'}} onClick={this.onFileInputClick.bind(this)}/>
+                <input type="file" id="file-input" ref={this._fileInputRef} className={styles.bar} style={{display: 'none'}} onChange={this.onFileInputClick.bind(this)}/>
             </div>
         );
     }
@@ -37,14 +39,17 @@ export default class FileButtons extends Component {
     }
 
     onLoadButtonClick() {
-        this.fileInputElement.click();
+        const fileInput = document.getElementById('file-input') as HTMLInputElement;
+        fileInput.click();
     }
 
     onFileInputClick() {
         const input = this.fileInputElement;
         if (input.files && input.files[0]) {
             this._fileService.loadFromFile(input.files[0])
-                .then(() => console.log("Данные загружены"))// TODO
+                .then((gameData) => {
+                    this._gameDataLoader.load(gameData);
+                })
                 .catch(err => console.error("Ошибка загрузки данных:", err));
         }
     }

@@ -4,6 +4,8 @@ import IDENTIFIERS from "../../constants/identifiers";
 import {GameValueTypes, IGame} from "../../interfaces/game/i-game";
 import FileButtons from "../file-buttons-component/FileButtons";
 import {resolve} from 'inversify-react';
+import {Subscription} from "rxjs";
+import {IGameState} from "../../interfaces/game/i-game-state";
 
 export default class GameBoard extends Component {
     private readonly cellSize = 40;
@@ -11,13 +13,16 @@ export default class GameBoard extends Component {
     private visibleCells: Map<string, string> = new Map();
 
     private _gameTableRef = createRef<HTMLDivElement>();
+
     private get gameTableElement(): HTMLDivElement {
         if (!this._gameTableRef.current) {
             throw new Error("No game table in the game board component");
         }
         return this._gameTableRef.current;
     }
+
     private _gameBoardRef = createRef<HTMLDivElement>();
+
     private get gameBoardElement(): HTMLDivElement {
         if (!this._gameBoardRef.current) {
             throw new Error("No game board in the game board component");
@@ -25,7 +30,10 @@ export default class GameBoard extends Component {
         return this._gameBoardRef.current;
     }
 
+    private _gameStateChangedSubscription!: Subscription;
+
     @resolve(IDENTIFIERS.IGame) private readonly _game!: IGame;
+    @resolve(IDENTIFIERS.IGameState) private readonly _gameState!: IGameState;
 
     constructor(props: any) {
         super(props);
@@ -35,8 +43,10 @@ export default class GameBoard extends Component {
         return (
             <div className={styles.gameContainer}>
                 <div></div>
-                <div id="game-table" onScroll={this.onScroll.bind(this)} ref={this._gameTableRef} className={`${styles.centeredElement} ${styles.gameTable}`}>
-                    <div id="game-board" onClick={event => this.handleClick(event.target)} ref={this._gameBoardRef} className={styles.gameBoard}></div>
+                <div id="game-table" onScroll={this.onScroll.bind(this)} ref={this._gameTableRef}
+                     className={`${styles.centeredElement} ${styles.gameTable}`}>
+                    <div id="game-board" onClick={event => this.handleClick(event.target)} ref={this._gameBoardRef}
+                         className={styles.gameBoard}></div>
                 </div>
                 <FileButtons/>
             </div>
@@ -46,9 +56,17 @@ export default class GameBoard extends Component {
     componentDidMount() {
         this.updateBoard();
         window.addEventListener('resize', this.resizeHandler.bind(this));
+
+        this._gameStateChangedSubscription = this._gameState.gameStateChanges.subscribe(() => {
+            this.rerendAllBoard();
+        });
     }
+
     componentWillUnmount() {
         window.removeEventListener('resize', this.resizeHandler.bind(this));
+        if (this._gameStateChangedSubscription) {
+            this._gameStateChangedSubscription.unsubscribe();
+        }
     }
 
     createCell(row: number, col: number, cellKey: string, visibleCells: Map<string, string>): void {
@@ -202,7 +220,7 @@ export default class GameBoard extends Component {
         });
     }
 
-    getRowAndColFromDOM(cell: Element): {row: number, col: number} {
+    getRowAndColFromDOM(cell: Element): { row: number, col: number } {
         const dataRow = cell.getAttribute('data-row');
         const dataColumn = cell.getAttribute('data-col');
         if (dataRow === null || dataColumn === null) {
@@ -211,7 +229,25 @@ export default class GameBoard extends Component {
 
         const cellRow = parseInt(dataRow);
         const cellCol = parseInt(dataColumn);
-        return { row: cellRow, col: cellCol };
+        return {row: cellRow, col: cellCol};
+    }
+
+    rerendAllBoard() {
+        this.visibleCells.forEach((value, cellKey) => {//TODO Почти Копипаст
+            const [rowStr, colStr] = cellKey.split(',');
+            const row = parseInt(rowStr, 10);
+            const col = parseInt(colStr, 10);
+            const cellToRemove = this.gameBoardElement.querySelector(`.${styles.cell}[data-row="${row}"][data-col="${col}"]`);
+            if (cellToRemove) {
+                this.gameBoardElement.removeChild(cellToRemove);
+                this.visibleCells.delete(cellKey);
+            } else {
+                throw new Error("При удалении видимой ячейки в таблице ячейка не была найдена")
+            }
+        });
+
+        this.updateBoard();
+        //this.forceUpdate();
     }
 
     updateBoard(): void {
@@ -269,7 +305,7 @@ export default class GameBoard extends Component {
         this.updateBoard(); // Перерасчитываем и добавляем ячейки при изменении размера окна
     }
 
-    handleClick(eventTarget:  EventTarget): void {
+    handleClick(eventTarget: EventTarget): void {
         if (!this._game.isGameStarted) { // TODO Необходимо вынести в другое место, это временное решение
             this._game.start();
         }
@@ -298,7 +334,7 @@ export default class GameBoard extends Component {
         }
     }
 
-   private handleWin(turnOfCurrentPlayer: GameValueTypes) {
-       alert(`${turnOfCurrentPlayer.toUpperCase()} wins!`);
+    private handleWin(turnOfCurrentPlayer: GameValueTypes) {
+        alert(`${turnOfCurrentPlayer.toUpperCase()} wins!`);
     }
 }

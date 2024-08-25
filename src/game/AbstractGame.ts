@@ -1,9 +1,13 @@
+import { Observable } from "rxjs";
 import {GameValueTypes, IGame} from "../interfaces/game/i-game";
-import {GameData, IGameState} from "../interfaces/game/i-game-state";
+import {IGameDataLoader} from "../interfaces/game/i-game-json-loader";
+import {GameData, GameStateChanged, IGameState} from "../interfaces/game/i-game-state";
 import {injectable} from "inversify";
 
 @injectable()
-export abstract class AbstractGame implements IGame, IGameState {
+export abstract class AbstractGame implements IGame, IGameState, IGameDataLoader {
+    abstract get gameStateChanges(): Observable<GameStateChanged>
+
     protected readonly _victoryRowLength: number = 3
 
     protected _currentPlayer: GameValueTypes = GameValueTypes.Cross;
@@ -63,4 +67,6 @@ export abstract class AbstractGame implements IGame, IGameState {
 
     protected abstract hasCrossValue(row: number, col: number): boolean;
     protected abstract hasZeroValue(row: number, col: number): boolean;
+
+    public abstract load(gameData: GameData): void;
 }

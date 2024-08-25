@@ -113,7 +113,7 @@ export class GameVictoryLogic implements IGameVictoryLogic {
             let columnPosition = c;
             for (let row = rowsNum - 1; row < rowsNum && row >= 0 && columnPosition < colsNum && columnPosition >= 1; row--)
             {
-                console.log(`[${row}][${columnPosition}]`);
+                //console.log(`[${row}][${columnPosition}]`);
                 const currentValue = matrix[row][columnPosition];
                 if (currentValue === lastValue)
                     match++;

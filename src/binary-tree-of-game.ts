@@ -48,7 +48,7 @@ export class BinaryTreeOfGame extends OuterBinarySearchTree<number,number> {
         const keysOfRange = this.rangeSearch(key);
         let count = 0;
         return keysOfRange?.some(key => {
-            if (!!this.search(key)?.tree.search(value)?.value) {
+            if (this.search(key)?.tree.search(value)?.value) {
                 count++;
                 if (count >= (this._victoryRowLength ?? 0)) {
                     return true;

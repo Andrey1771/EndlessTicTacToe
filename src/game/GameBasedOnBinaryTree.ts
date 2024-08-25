@@ -1,19 +1,21 @@
 import {BinaryTreeOfGame} from "../binary-tree-of-game";
-import {GameData} from "../interfaces/game/i-game-state";
-import { injectable } from "inversify";
+import {GameData, GameStateChanged} from "../interfaces/game/i-game-state";
+import {injectable} from "inversify";
 import {AbstractGame} from "./AbstractGame";
+import {Observable} from "rxjs";
 
 @injectable()
-export class GameBasedOnBinaryTree extends AbstractGame { // TODO Раздели на два класса?
+export class GameBasedOnBinaryTree extends AbstractGame {
     private _crossBinaryTree: BinaryTreeOfGame | null = null;
     private _zeroBinaryTree: BinaryTreeOfGame | null = null;
 
     override get state(): GameData {
-        return {
+        throw new Error("Not implemented.");
+        /*return {
             currentPlayer: this._currentPlayer.toString(),
             crosses: this._crossBinaryTree?.toJSON(),
             zeros: this._zeroBinaryTree?.toJSON(),
-        };
+        };*/
     }
 
     public override start() {
@@ -37,5 +39,13 @@ export class GameBasedOnBinaryTree extends AbstractGame { // TODO Раздели
     }
     override hasZeroValue(row: number, col: number): boolean {
         return this._zeroBinaryTree?.search(row)?.tree.search(col) != null;
+    }
+
+    public load(gameData: GameData): void {
+        throw new Error("Method not implemented.");
+    }
+
+    get gameStateChanges(): Observable<GameStateChanged> {
+        throw new Error("Method not implemented.");
     }
 }
