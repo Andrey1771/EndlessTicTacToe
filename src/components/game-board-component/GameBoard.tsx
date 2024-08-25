@@ -70,7 +70,7 @@ export default class GameBoard extends Component {
             cell.dataset.col = col.toString();
             const value = hasCrossValue ? styles.x : styles.o;
             cell.classList.add(value);
-            cell.textContent = value;
+            cell.textContent = hasCrossValue ? GameValueTypes.Cross : GameValueTypes.Zero;
             this.insertCellInGameBoard(row, col, cell);
             visibleCells.set(cellKey, value);
             return;
@@ -81,7 +81,7 @@ export default class GameBoard extends Component {
 
     insertCellInGameBoard(row: number, col: number, cell: HTMLDivElement): void {
         // Получение всех ячеек
-        const cells = this.gameBoardElement.querySelectorAll(styles.cell);
+        const cells = this.gameBoardElement.querySelectorAll(`.${styles.cell}`);
 
         const nearestCell = this.getNearestCell(row, col, cells);
         if (!nearestCell) {
