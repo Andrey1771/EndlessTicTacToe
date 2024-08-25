@@ -3,6 +3,7 @@ const IDENTIFIERS = {
 
     IGame: Symbol.for("IGame"),
     IGameState: Symbol.for("IGameState"),
+    IGameVictoryLogic: Symbol.for("IGameVictoryLogic"),
 };
 
 export default IDENTIFIERS;
