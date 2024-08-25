@@ -4,12 +4,14 @@ import {injectable} from "inversify";
 
 @injectable()
 export abstract class AbstractGame implements IGame, IGameState {
+    protected readonly _victoryRowLength: number = 3
+
     protected _currentPlayer: GameValueTypes = GameValueTypes.Cross;
     public get turnOfCurrentPlayer(): GameValueTypes {
         return this._currentPlayer;
     }
 
-    abstract get state(): GameData
+    abstract get state(): GameData;
 
     protected _isGameStarted = false;
     get isGameStarted(): boolean {
@@ -44,17 +46,16 @@ export abstract class AbstractGame implements IGame, IGameState {
     }
 
     protected abstract addCrossToAndCheckVictory(x: number, y: number): boolean;
-
     protected abstract addZeroToAndCheckVictory(x: number, y: number): boolean;
 
     public hasValue(row: number, col: number, type?: GameValueTypes): boolean {
         switch (type) {
             case GameValueTypes.Cross:
-                return !!this.hasCrossValue(row, col);
+                return this.hasCrossValue(row, col);
             case GameValueTypes.Zero:
-                return !!this.hasZeroValue(row, col);
+                return this.hasZeroValue(row, col);
             case undefined:
-                return !!this.hasCrossValue(row, col) || !!this.hasZeroValue(row, col);
+                return this.hasCrossValue(row, col) || this.hasZeroValue(row, col);
             default:
                 throw new Error("Unknown game value type");
         }

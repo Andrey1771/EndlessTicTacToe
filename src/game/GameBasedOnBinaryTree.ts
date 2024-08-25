@@ -4,10 +4,9 @@ import { injectable } from "inversify";
 import {AbstractGame} from "./AbstractGame";
 
 @injectable()
-export class GameBasedOnBinaryTree extends AbstractGame { // TODO Раздели на два класса
+export class GameBasedOnBinaryTree extends AbstractGame { // TODO Раздели на два класса?
     private _crossBinaryTree: BinaryTreeOfGame | null = null;
     private _zeroBinaryTree: BinaryTreeOfGame | null = null;
-    private readonly _victoryRowLength: number = 3
 
     override get state(): GameData {
         return {
